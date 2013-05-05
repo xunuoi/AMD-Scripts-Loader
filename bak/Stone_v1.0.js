@@ -1,8 +1,10 @@
 /* 
  * Stone.js
+ * Metrictool VMware
  * @Cloud Xu: xwlxyjk@gmail.com
- * 2013/5/5 V1.1
+ * 2013/3/23 V1.0
  */
+
 (function(_isFirstLoad){
 	//Prevent Repeat Load Stone
 	if(_isFirstLoad) {}else { return false; }
@@ -13,7 +15,7 @@
 
 		var _guidBase = {};
 		var _autoIncrement = {};
-		
+
 		var _exports =  {
 			noop: function(){},
 			typeCheckOff: function(){
@@ -56,10 +58,11 @@
 			getTarget: function(event) {//currentTarget是处理事件的调用者，如果document.body.onclick = function(event){}中event.currentTarget ===this===document.body  target是目标
 				return event.target || event.srcElement;
 			},
-			getScriptNode: function(){	 	
-					var s = document.getElementsByTagName('script');	 	
-					return s;	 	
+			getScriptNode: function(){
+				var s = document.getElementsByTagName('script');
+				return s;
 			},
+			
 			preventDefault: function(event){
 				if (event.preventDefault != undefined) {event.preventDefault();}
 				else {event.returnValue = false;}//for IE
@@ -115,11 +118,6 @@
 			//judge the mouse direction
 			slideLeft: function(){},
 			slideRight: function(){},
-			toBottom: function(elm){
-				elm.scrollTop = elm.scrollHeight - elm.offsetHeight;
-
-				return this;
-			},
 			//drag tool
 			drag: function(){
 				var util = {
@@ -169,10 +167,8 @@
 				    //start drag
 				    this.bind(ctrl, 'mousedown', function(e){
 				        var e = stone.getEvent(e);
-				        //console.log(e);
 				        util.getFocus(tar);
 				        if(e.button == (NS ? 0 : (IE9 ? 0 : 1) ) )  {
-				        	//alert('sdfwf');
 				            if(!NS){
 				            	this.setCapture ? this.setCapture() : '';
 				            }
@@ -280,24 +276,27 @@
 				var r = a.concat([]);
 				return r;
 			},
-			clone: function(tar) {	 	
-				var t = this.getType(tar), rt;	 	
-				t == 'array' ? rt = this.cloneArray(tar) : 	 	
-				(t == 'object' ? rt = this.cloneObj(tar) : 	 	
-				(t == 'string' ? rt = tar : ''));	 	
+			clone: function(tar) {
+				var t = this.getType(tar), rt;
 
-				return rt;	 	
+				t == 'array' ? rt = this.cloneArray(tar) : 
+				(t == 'object' ? rt = this.cloneObj(tar) : 
+				(t == 'string' ? rt = tar : ''));
+
+				return rt;
 			},
+
 			//返回一个倒序的数组
 			reArray: function(a){
 				var b = a.concat([]).reverse()
 				return b;
 			},
+
 			each: function(a, eachfn){
 				var len = a.length;
 				var newa = [];
 				for(var i=0;i<len; i++){
-					newa.push(eachfn.call(a[i], a[i])); 
+					newa.push(eachfn.call(a[i], a[i]));
 				}
 				//invalid return value
 				newa.length == 0 ? newa = undefined : '';
@@ -307,16 +306,15 @@
 				var len = a.length;
 				var curRs;
 				for(var i=0;i<len; i++){
-					curRs = eachfn.call(a[i], a[i]); 
+					curRs = eachfn.call(a[i], a[i]);
 				}
 
 				return curRs;
 			},
-
 			attrEach: function(obj, fn){
 				for(var key in obj){
 					if(obj.hasOwnProperty(key)){
-						fn.call(obj[key], key, obj[key]);
+						fn.call(obj[key], obj[key]);
 					}
 				}
 
@@ -358,19 +356,6 @@
 				}
 
 				return rs;
-			},
-			toggleAttr: function(tar, attr, val){
-				var val = val || attr;
-				if(!tar.getAttribute(attr)){
-					tar.setAttribute(attr, val);
-				}else {
-					tar.removeAttribute(attr);
-				}
-
-				return this;
-			},
-			isEditable: function(tar){
-				return !!tar.getAttribute('contenteditable');
 			},
 			//ONLY FOR STRING/NUMBER ARRAY
 			arrayMinus: function(a, b, intersection){
@@ -414,33 +399,8 @@
 
 				return a;
 			},
-			renderTmpl: function(tmpl ,data){
-		        var dataType = stone.getType(data);
-		        var rsHtml = tmpl;
-		        if(dataType == 'array'){
-		            var len = data.length;
-		            for(var i=0; i<len; i++){
-		                rsHtml = rsHtml.replace(/%(\{\w*\})?%/, data[i]);
-		            }
-		        }else if(dataType == 'object'){
-		            for(var key in data){
-		                if(data.hasOwnProperty(key)){
-		                    var valPt = new RegExp('%\\{?'+key+'\\}?%', 'g');
-		                    rsHtml = rsHtml.replace(valPt, data[key]);
-		                }
-		            }
-		        }else {throw TypeError('Invalid Type: '+dataType);}
 
-		        return rsHtml;
-		    },
-		    pureSelector: function(str){
-		    	if(stone.inArray(str[0], ['#', '.'])){
-		    		return str.slice(1);
-		    	}else {
-		    		return str;
-		    	}
-		    },
-		    getScript: function(url, onloadfn, scriptId){//script脚本延迟载入工具
+		  	getScript: function(url, onloadfn, scriptId){//script脚本延迟载入工具
 		  		//console.log('toloadQueu: '+module.toLoadQueue);
 		  		if(stone.isIE()){
 		  			if(module.isGettingScript){
@@ -463,11 +423,15 @@
 					script.onreadystatechange = function(){
 						if(script.readyState == 'loading'){
 							console.log('onLoading: || ' + script.src);
+							//module.notCache.push(script.src);
 
 						}else if(script.readyState == 'loaded' || script.readyState == 'complete') {
 							script.onreadystatechange = null;
 							console.log('loaded: || ' + script.src);
 							
+							//var fromCache = module.fromCache;
+							//fromCache.push(script.src);
+							//module.fromCache = stone.arrayMinus(fromCache, module.notCache);
 
 							onloadfn ? onloadfn.call(script, url) : '';
 
@@ -504,38 +468,8 @@
 				//如果此时body节点没有生成，那么将script标签加载到head里面
 				if(document.body) { document.body.appendChild(script); } else {document.getElementsByTagName('head')[0].appendChild(script); }	
 				
-			},//getScript
-		  	/*getScript: function(url,callback,scriptId){//script脚本延迟载入工具
-				var script = document.createElement('script');
-				script.type = 'text/javascript';
-			
-				if(scriptId != undefined && typeof scriptId == 'string' ) { script.setAttribute('id',scriptId ); }	
-				
-				var onloadfn = callback;//回调函数
 
-				if(script.readyState){ //for IE
-					script.onreadystatechange = function(){
-						if(script.readyState == 'loaded' || script.readyState == 'complete') {
-							script.onreadystatechange = null;
-							if(onloadfn) onloadfn();
-						}
-					};
-				} else {//other browser
-					script.onload = function(event){
-						script.onload = null;	
-						if(onloadfn && !onloadfn.isJSONPLoadedCallback) {//如果回调函数存在，并且不是JSONP的回调函数
-							onloadfn();
-						}
-					};
-					script.onerror = function(){
-						script.onerror = null;
-						if(onloadfn) onloadfn();
-					};
-				}
-				script.src = url;
-				//如果此时body节点没有生成，那么将script标签加载到head里面
-				if(document.body) { document.body.appendChild(script); } else {document.getElementsByTagName('head')[0].appendChild(script); }	
-			},//getScript*/
+			},//getScript
 
 			getJSONP: function(obj){ //跨域通信，script标签方式，兼容IE和FF\CHROME			
 				var url = obj.url, dataObj = obj.data, success = obj.success || this.noop, error = obj.error || this.noop ;
@@ -589,6 +523,7 @@
 
 				});
 			},
+
 			urlToObj: function(url){//把传递的URL解析成Object
 				return (new Function('return' +	
 				' {' + 
@@ -636,8 +571,8 @@
                 if(regSymbol.indexOf(b) != -1){
                 	b = '\\'+b;
                 }   
-                //console.log('return {"' + s.replace(new RegExp(b, 'g'), '",').replace(new RegExp(a, 'g'), '": "') + '" }');
-                return (new Function('return {"' + s.replace(new RegExp(b, 'g'), '", "').replace(new RegExp(a, 'g'), '": "') + '" }'))();			
+
+                return (new Function('return {' + s.replace(new RegExp(b, 'g'), '",').replace(new RegExp(a, 'g'), ': "') + '" }'))();			
 			},
 
 			resolveJSON: function(obj){
@@ -881,7 +816,7 @@
 
 					if ( objClone[key] != obj[key] ){
 						if ( typeof obj[key] == 'object' ){
-							objClone[key] = this.cloneObj(obj[key]);//深度克隆
+							objClone[key] = cloneObj(obj[key]);//深度克隆
 						}else{
 							objClone[key] = obj[key];
 						}
@@ -1046,20 +981,25 @@
 
 			ltIE: function(verson){
 				var num = verson || '9';
-				var IEtester = document.createElement('div');
+				 var IEtester = document.createElement('div');
 				IEtester.innerHTML = '<!--[if lt IE ' + num + ']><i></i><![endif]-->';
 
-				return !!IEtester.getElementsByTagName('i')[0];
-			},
-			isIE : function (verson){//对IE浏览器进行版本检测
-				var num = verson || '';
-				var IEtester = document.createElement('div');
-				IEtester.innerHTML = '<!--[if IE ' + num + ']><i></i><![endif]-->';
-
-				this.isIE = function(){
-				    return !!IEtester.getElementsByTagName('i')[0];
+				isIE = function(){
+				        return !!IEtester.getElementsByTagName('i')[0];
 				};
 				return !!IEtester.getElementsByTagName('i')[0];
+			},
+
+			isIE : function (verson){//对IE浏览器进行版本检测
+		         var num = verson || '';
+		         //!-[1,]: IE9 have fixed this bug :ie9 return false; other ie return true;
+		      	 var IEtester = document.createElement('div');
+		         IEtester.innerHTML = '<!--[if IE ' + num + ']><i></i><![endif]-->';
+
+		         isIE = function(){
+		                    return !!IEtester.getElementsByTagName('i')[0];
+			            };
+		         return !!IEtester.getElementsByTagName('i')[0];
 		    },
 
 		    ie6: function(){
@@ -1082,7 +1022,6 @@
 
 			getUpper: function(str, pos){
 				var pos = pos || 0;
-				console.log(str[pos]);
 				var rsStr = str[pos].toUpperCase()+str.slice(pos+1);
 
 				return rsStr;
@@ -1118,6 +1057,11 @@
 			})(),
 
 			inString: function(tar, str){
+				/*if(str.match(tar)){ //not true: eg: '7.1, twe, 6.0'.match('.6') == [' 7']
+					return true;
+				}else {
+					return false;
+				}*/
 				return !!(str.indexOf(tar) + 1);
 			},
 
@@ -1155,23 +1099,13 @@
 		    	}else if(argType == 'object'){
 					for(var key in fnCtn) {
 						if(fnCtn.hasOwnProperty(key)){
-							fnCtn[key]();//	key();
+							fnCtn[key]();
 						}
 					}
 		    	}else {
 		    		throw new TypeError('fnRun Expected Param Array Or Object,But got ' + argType);
 		    	}
 		    },
-
-		    gotoAnchor: function (anchorId, offTop) {
-		    	var alink = document.createElement('a');
-		    	alink.href = '#' + anchorId;
-		    	alink.style = "display:none;";
-		    	document.body.appendChild(alink);
-		    	alink.click();
-		    	alink.remove();
-		    },
-
 		    getAutoIncrement: function(forId, baseNum){
 		    	
 		    	if(typeof _autoIncrement[forId] == 'number'){
@@ -1245,8 +1179,8 @@
 
 	}();
 /* /DEFINE STONE OBJECT ---------------------------------------------------------*/
-
 //DEFINE CONFIG OBJ FOR REQUIRE SYSTEM
+
 /* DEFINE REQUIRE FUNCTION ------------------------------------------------------*/
 var Require = function () {
 	this.constructor = arguments.callee;
@@ -1376,6 +1310,7 @@ Require.prototype = {
 			if(module.anonymousMod){
 				var argList = module.anonymousMod;
 				argList.unshift(modName);
+				//alert('其他浏览器 匿名模块: '+modName);
 
 				module.anonymousDefine(argList);
 				//clear once
@@ -1642,11 +1577,26 @@ var module = function(){
 }();
 window.module = module;
 
+/*module.inLoading = {};
+module.inLoading.toList = function(){
+	var list = [];
+	stone.attrEach(this, function(){
+		list.push(this);
+	});
+
+	return list;
+};*/
+
 /* END:DEFINE REQUIRE FUNCTION -----------------------------------------------------*/
 module.inDefine = {};
 module.logObj = {};
 module.regedMod = [];
+
+module.notCache = [];
+module.fromCache = [];
+
 module.hasDefinedMod = [];
+
 module.toLoadQueue = [];
 
 /* DEFINE DEFINE FUNCTION ------------------------------------------------------*/
@@ -1661,7 +1611,7 @@ var define = function(){
 			}
 			var tArg1 = stone.getType(argList[1]);
 			//if rMod Exist:array or string 
-			console.log('doing define----------|| '+argList[0]);
+			console.log('正在执行define----------|| '+argList[0]);
 			if( stone.inArray(tArg1, ['string', 'array']) ){
 				var modName = argList[0], rMod = argList[1], factory = argList[2];
 				//reg in inDefine
